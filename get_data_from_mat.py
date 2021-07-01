@@ -1,6 +1,6 @@
 from scipy.io import loadmat
 import pandas as pd
-
+# gets data from matrix
 fil_mat_arr = loadmat('fil_mat.mat')
 fil_mat_lst=[tuple([elem for elem in row]) for row in fil_mat_arr['fil_mat'][0:-1]]
 columns = []
