@@ -48,7 +48,12 @@ def load_dataset_group(group, prefix=''):
     X = load_group(filenames, filepath)
     # load class output
     y = load_file(prefix + group + '/y_' + group + '.txt')
+
+    # X is matrix y is names
+
     return X, y
+
+
 
 
 # load the dataset, returns train and test X and y elements
