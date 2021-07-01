@@ -8,70 +8,70 @@ from keras.layers import Dense
 from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import LSTM
-from keras.utils import to_categorical
-from get_data_from_mat import mat_data
+from tensorflow.keras.utils import to_categorical
+from get_data_from_mat import get_train_test_sets
 from matplotlib import pyplot
 
 
 # This is new
 
-# load a single file as a numpy array
-def load_file(filepath):
-    dataframe = read_csv(filepath, header=None, delim_whitespace=True)
-    return dataframe.values
-
-
-# load a list of files and return as a 3d numpy array
-def load_group(filenames, prefix=''):
-    loaded = list()
-    for name in filenames:
-        # use matlab data
-        data = mat_data
-        loaded.append(data)
-    # stack group so that features are the 3rd dimension
-    loaded = dstack(loaded)
-    return loaded
-
-
-# load a dataset group, such as train or test
-def load_dataset_group(group, prefix=''):
-    filepath = prefix + group + '/Inertial Signals/'
-    # load all 9 files as a single array
-    filenames = list()
-    # total acceleration
-    filenames += ['total_acc_x_' + group + '.txt', 'total_acc_y_' + group + '.txt', 'total_acc_z_' + group + '.txt']
-    # body acceleration
-    filenames += ['body_acc_x_' + group + '.txt', 'body_acc_y_' + group + '.txt', 'body_acc_z_' + group + '.txt']
-    # body gyroscope
-    filenames += ['body_gyro_x_' + group + '.txt', 'body_gyro_y_' + group + '.txt', 'body_gyro_z_' + group + '.txt']
-    # load input data
-    X = load_group(filenames, filepath)
-    # load class output
-    y = load_file(prefix + group + '/y_' + group + '.txt')
-
-    # X is matrix y is names
-
-    return X, y
-
-
-
-
-# load the dataset, returns train and test X and y elements
-def load_dataset(prefix=''):
-    # load all train
-    trainX, trainy = load_dataset_group('train', prefix + 'HARDataset/')
-    print(trainX.shape, trainy.shape)
-    # load all test
-    testX, testy = load_dataset_group('test', prefix + 'HARDataset/')
-    print(testX.shape, testy.shape)
-    # zero-offset class values
-    trainy = trainy - 1
-    testy = testy - 1
-    # one hot encode y
-    trainy = to_categorical(trainy)
-    testy = to_categorical(testy)
-    print(trainX.shape, trainy.shape, testX.shape, testy.shape)
-    return trainX, trainy, testX, testy
+# # load a single file as a numpy array
+# def load_file(filepath):
+#     dataframe = read_csv(filepath, header=None, delim_whitespace=True)
+#     return dataframe.values
+#
+#
+# # load a list of files and return as a 3d numpy array
+# def load_group(filenames, prefix=''):
+#     loaded = list()
+#     for name in filenames:
+#         # use matlab data
+#         data = mat_data
+#         loaded.append(data)
+#     # stack group so that features are the 3rd dimension
+#     loaded = dstack(loaded)
+#     return loaded
+#
+#
+# # load a dataset group, such as train or test
+# def load_dataset_group(group, prefix=''):
+#     filepath = prefix + group + '/Inertial Signals/'
+#     # load all 9 files as a single array
+#     filenames = list()
+#     # total acceleration
+#     filenames += ['total_acc_x_' + group + '.txt', 'total_acc_y_' + group + '.txt', 'total_acc_z_' + group + '.txt']
+#     # body acceleration
+#     filenames += ['body_acc_x_' + group + '.txt', 'body_acc_y_' + group + '.txt', 'body_acc_z_' + group + '.txt']
+#     # body gyroscope
+#     filenames += ['body_gyro_x_' + group + '.txt', 'body_gyro_y_' + group + '.txt', 'body_gyro_z_' + group + '.txt']
+#     # load input data
+#     X = load_group(filenames, filepath)
+#     # load class output
+#     y = load_file(prefix + group + '/y_' + group + '.txt')
+#
+#     # X is matrix y is names
+#
+#     return X, y
+#
+#
+#
+#
+# # load the dataset, returns train and test X and y elements
+# def load_dataset(prefix=''):
+#     # load all train
+#     trainX, trainy = load_dataset_group('train', prefix + 'HARDataset/')
+#     print(trainX.shape, trainy.shape)
+#     # load all test
+#     testX, testy = load_dataset_group('test', prefix + 'HARDataset/')
+#     print(testX.shape, testy.shape)
+#     # zero-offset class values
+#     trainy = trainy - 1
+#     testy = testy - 1
+#     # one hot encode y
+#     trainy = to_categorical(trainy)
+#     testy = to_categorical(testy)
+#     print(trainX.shape, trainy.shape, testX.shape, testy.shape)
+#     return trainX, trainy, testX, testy
 
 
 # fit and evaluate a model
@@ -101,7 +101,7 @@ def summarize_results(scores):
 # run an experiment
 def run_experiment(repeats=10):
     # load data
-    trainX, trainy, testX, testy = load_dataset()
+    trainX, trainy, testX, testy = get_train_test_sets('fil_s_3mat')
     # repeat experiment
     scores = list()
     for r in range(repeats):

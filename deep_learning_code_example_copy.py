@@ -8,7 +8,7 @@ from keras.layers import Dense
 from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import LSTM
-from keras.utils import to_categorical
+from tensorflow.keras.utils import to_categorical
 from matplotlib import pyplot
 
 # load a single file as a numpy array
