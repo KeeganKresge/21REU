@@ -11,6 +11,8 @@ from keras.layers import LSTM
 from keras.utils import to_categorical
 from matplotlib import pyplot
 
+# This is new
+
 # load a single file as a numpy array
 def load_file(filepath):
 	dataframe = read_csv(filepath, header=None, delim_whitespace=True)
