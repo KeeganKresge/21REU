@@ -5,7 +5,7 @@ from numpy import std
 from numpy import dstack
 from pandas import read_csv
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, MaxPooling2D
+from keras.layers import Dense, Conv2D, MaxPooling2D, Conv1D, MaxPooling1D
 from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import LSTM
@@ -94,14 +94,14 @@ def make_model(trainX, trainy):
 def make_model2(trainX, trainy):
     n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
     model = Sequential()
-    model.add(Conv2D(3, (3, 3), padding='valid', activation ='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv1D(3, (3,), padding='valid', activation ='relu'))
+    model.add(MaxPooling1D(pool_size=(2, )))
 
-    model.add(Conv2D(3, (3, 3), padding='valid', activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv1D(3, (3,), padding='valid', activation='relu'))
+    model.add(MaxPooling1D(pool_size=(2, )))
 
-    model.add(Conv2D(3, (3, 3), padding='valid', activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv1D(3, (3,), padding='valid', activation='relu'))
+    model.add(MaxPooling1D(pool_size=(2, )))
 
     model.add(Flatten())
     model.add(Dense(64, activation='relu'))
@@ -140,7 +140,7 @@ def run_accuracy_test(repeats=50):
     # repeat experiment
     scores = list()
     for r in range(repeats):
-        model = make_model(trainX, trainy)
+        model = make_model2(trainX, trainy)
         score = evaluate_model(model, trainX, trainy)
         score = score * 100.0
         print('>#%d: %.3f' % (r + 1, score))
@@ -150,18 +150,19 @@ def run_accuracy_test(repeats=50):
 
 def run_confusion_matrix_test(repeats=50):
     # repeat confusion matrix
+    # cm = [[0 * trainy.shape(1)] * trainy.shape(1)]
     cm = [[0 * 5] * 5]
     for r in range(repeats):
         print(r)
-        model = make_model(trainX, trainy)
+        model = make_model2(trainX, trainy)
         cm+= get_confusion_matrix(model, testX, testy)
     print("Confusion Matrix:\n",cm)
 
 
 verbose, epochs, batch_size = 0, 15, 64
 # load data
-trainX, trainy, _, _ = get_train_test_sets('unf_s_3mat')
-_, _, testX, testy   = get_train_test_sets('unf_s_3mat')
+trainX, trainy, _, _ = get_train_test_sets('unf_k_3mat')
+_, _, testX, testy   = get_train_test_sets('unf_k_3mat')
 
 # run the experiment
 # run_accuracy_test()
