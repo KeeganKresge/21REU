@@ -1,19 +1,21 @@
 # lstm model
+import numpy as np
 from numpy import mean
 from numpy import std
 from numpy import dstack
 from pandas import read_csv
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Conv2D, MaxPooling2D
 from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import LSTM
+from sklearn.metrics import confusion_matrix, classification_report
 from tensorflow.keras.utils import to_categorical
 from get_data_from_mat import get_train_test_sets
 from matplotlib import pyplot
+import winsound
 
 
-# This is new
 
 # # load a single file as a numpy array
 # def load_file(filepath):
@@ -75,8 +77,7 @@ from matplotlib import pyplot
 
 
 # fit and evaluate a model
-def evaluate_model(trainX, trainy, testX, testy):
-    verbose, epochs, batch_size = 0, 15, 64
+def make_model(trainX, trainy):
     n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
     model = Sequential()
     model.add(LSTM(100, input_shape=(n_timesteps, n_features)))
@@ -84,11 +85,47 @@ def evaluate_model(trainX, trainy, testX, testy):
     model.add(Dense(100, activation='relu'))
     model.add(Dense(n_outputs, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
     # fit network
     model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
+    return model
+
+# fit and evaluate a model
+def make_model2(trainX, trainy):
+    n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
+    model = Sequential()
+    model.add(Conv2D(3, (3, 3), padding='valid', activation ='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Conv2D(3, (3, 3), padding='valid', activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Conv2D(3, (3, 3), padding='valid', activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Flatten())
+    model.add(Dense(64, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(n_outputs, activation='softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+    # fit network
+    model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
+    return model
+
+def evaluate_model(model, testX, testy):
     # evaluate model
     _, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
     return accuracy
+
+def get_confusion_matrix(model, testX, testy):
+    y_pred = model.predict_classes(testX)
+    testy=[np.argmax(elem, axis=-1) for elem in testy]
+    cm = confusion_matrix(testy, y_pred)
+    # print('Classification Report')
+    # target_names = ['Cats', 'Dogs', 'Horse']
+    # print(classification_report(validation_generator.classes, y_pred, target_names=target_names))
+    return cm
 
 
 # summarize scores
@@ -99,19 +136,37 @@ def summarize_results(scores):
 
 
 # run an experiment
-def run_experiment(repeats=10):
-    # load data
-    trainX, trainy, testX, testy = get_train_test_sets('fil_s_3mat')
+def run_accuracy_test(repeats=50):
     # repeat experiment
     scores = list()
     for r in range(repeats):
-        score = evaluate_model(trainX, trainy, testX, testy)
+        model = make_model(trainX, trainy)
+        score = evaluate_model(model, trainX, trainy)
         score = score * 100.0
         print('>#%d: %.3f' % (r + 1, score))
         scores.append(score)
     # summarize results
     summarize_results(scores)
 
+def run_confusion_matrix_test(repeats=50):
+    # repeat confusion matrix
+    cm = [[0 * 5] * 5]
+    for r in range(repeats):
+        print(r)
+        model = make_model(trainX, trainy)
+        cm+= get_confusion_matrix(model, testX, testy)
+    print("Confusion Matrix:\n",cm)
+
+
+verbose, epochs, batch_size = 0, 15, 64
+# load data
+trainX, trainy, _, _ = get_train_test_sets('unf_s_3mat')
+_, _, testX, testy   = get_train_test_sets('unf_s_3mat')
 
 # run the experiment
-run_experiment()
+# run_accuracy_test()
+
+# get confusion matrix
+run_confusion_matrix_test()
+
+winsound.Beep(300, 2000)
